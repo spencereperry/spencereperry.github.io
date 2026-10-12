@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spencer Perry Engineering</title>
+<meta name="description" content="Spencer Perry: electrical engineering and embedded systems projects, including the Octopus water quality monitor.">
+<style>
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an engineering datasheet. Each project is a section with a spec table,
+   a short narrative, and photos. Palette "Instrument": graphite neutrals with one
+   amber accent, like an indicator LED on lab equipment. */
+:root{
+  --bg:#F4F4F2;
+  --surface:#FFFFFF;
+  --ink:#1B1D1F;
+  --muted:#5C6166;
+  --rule:#D8DADC;
+  --accent:#9A5B00;
+  --accent-soft:#F6E7CF;
+  --display:"Familjen Grotesk","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141618;--surface:#1C1F22;--ink:#E9EAEB;--muted:#989DA2;--rule:#2B2F33;
+    --accent:#F2A93B;--accent-soft:#33291A;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141618;--surface:#1C1F22;--ink:#E9EAEB;--muted:#989DA2;--rule:#2B2F33;
+  --accent:#F2A93B;--accent-soft:#33291A;color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:1rem;line-height:1.6;
+  padding-inline:20px;padding-block:0 64px}
+.wrap{max-width:1040px;margin:0 auto}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+h1,h2,h3{font-family:var(--display);line-height:1.1;text-wrap:balance;margin:0}
+p{margin:0;max-width:65ch}
+.mono{font-family:var(--mono)}
+.label{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* Top bar */
+.topbar{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;align-items:center;
+  padding-block:18px;border-bottom:1px solid var(--rule)}
+.topbar nav{display:flex;flex-wrap:wrap;gap:6px 20px}
+.topbar nav a{color:var(--ink);text-decoration:none;font-size:.9rem}
+.topbar nav a:hover{color:var(--accent)}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:1.4fr 1fr;gap:40px;padding-block:56px 48px;align-items:end}
+.hero h1{font-size:clamp(2.6rem,7vw,4.6rem);font-weight:700;letter-spacing:-.02em}
+.hero h1 span{color:var(--accent)}
+.hero .lede{font-size:1.15rem;margin-top:20px}
+.hero .meta{display:grid;gap:10px;border-left:2px solid var(--accent);padding-left:18px}
+.hero .meta div{display:grid;gap:2px}
+.hero .meta .v{font-size:.95rem}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.btn{display:inline-block;padding:10px 18px;border:1px solid var(--ink);color:var(--ink);text-decoration:none;
+  font-weight:500;font-size:.92rem}
+.btn.primary{background:var(--ink);color:var(--bg)}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary:hover{background:var(--accent);color:var(--bg)}
+
+/* Trace divider */
+.trace{height:14px;background:
+  radial-gradient(circle at 7px 7px,var(--accent) 0 4px,transparent 4.5px) left center/14px 14px no-repeat,
+  radial-gradient(circle at 7px 7px,var(--accent) 0 4px,transparent 4.5px) right center/14px 14px no-repeat,
+  linear-gradient(var(--accent),var(--accent)) center/calc(100% - 28px) 2px no-repeat;opacity:.55}
+
+/* Sections */
+section{padding-block:56px 8px}
+.sec-head{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;margin-bottom:28px}
+.sec-head h2{font-size:clamp(1.8rem,4vw,2.5rem)}
+.sec-num{font-family:var(--mono);color:var(--accent);font-size:.9rem}
+
+.project{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:36px;
+  padding-block:32px;border-top:1px solid var(--rule)}
+.project:first-of-type{border-top:0;padding-top:0}
+.project h3{font-size:1.6rem;margin-bottom:6px}
+.project .tag{margin-bottom:18px}
+.story{display:grid;gap:14px;align-content:start;min-width:0}
+.story h4{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent);margin:8px 0 -6px;font-weight:500}
+
+.specs{width:100%;border-collapse:collapse;font-size:.88rem;font-variant-numeric:tabular-nums}
+.specs th,.specs td{text-align:left;padding:7px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+.specs th{font-family:var(--mono);font-weight:400;font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);width:38%;padding-right:12px}
+.side{display:grid;gap:18px;align-content:start}
+
+.slot{border:1.5px dashed var(--rule);background:var(--surface);aspect-ratio:4/3;max-width:100%;
+  display:grid;place-items:center;text-align:center;padding:16px;color:var(--muted);font-size:.85rem}
+.slot.wide{aspect-ratio:16/9}
+.slot b{display:block;font-family:var(--mono);font-weight:500;color:var(--accent);font-size:.72rem;
+  letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.slots{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.shot{margin:0;display:grid;grid-template-columns:minmax(0,1fr);gap:8px;min-width:0}
+.shot img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border:1px solid var(--rule)}
+.shot.term{grid-column:1/-1}
+.term-scroll{min-width:0;overflow-x:auto;border:1px solid var(--rule);background:#1e1e1e}
+.term-scroll img{display:block;width:auto;max-width:none;height:auto;aspect-ratio:auto;border:0;min-width:100%}
+.shot figcaption{font-size:.82rem;color:var(--muted);line-height:1.4}
+.shot figcaption span{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+
+.patent{background:var(--accent-soft);padding:14px 16px;font-size:.88rem;display:grid;gap:4px}
+.patent .mono{font-size:.95rem;color:var(--ink)}
+
+/* Lists */
+.grid2.single{grid-template-columns:1fr}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 40px}
+.item{display:grid;gap:4px;padding-block:14px;border-top:1px solid var(--rule)}
+.item h3{font-size:1.1rem}
+.item p{color:var(--muted);font-size:.95rem}
+.awards{list-style:none;margin:0;padding:0;columns:2;column-gap:40px}
+.awards li{break-inside:avoid;padding:9px 0;border-top:1px solid var(--rule);font-size:.95rem}
+
+.contact{display:grid;gap:16px;padding:28px;background:var(--surface);border:1px solid var(--rule);margin-top:8px}
+.contact .row{display:flex;flex-wrap:wrap;gap:10px 28px}
+.fill{background:var(--accent-soft);color:var(--accent);font-family:var(--mono);font-size:.85rem;padding:1px 6px}
+
+footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--rule);display:flex;flex-wrap:wrap;
+  justify-content:space-between;gap:8px}
+
+@media (max-width:760px){
+  .hero,.project{grid-template-columns:1fr;gap:28px}
+  .hero{padding-block:36px 32px}
+  .grid2{grid-template-columns:1fr}
+  .awards{columns:1}
+}
+@media (prefers-reduced-motion:no-preference){
+  .btn{transition:background .15s,color .15s,border-color .15s}
+}
+
+.grid-projects{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:40px}
+.pcard{display:grid;grid-template-rows:auto auto 1fr;gap:6px;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--rule);padding:0 0 14px}
+.pcard img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-bottom:1px solid var(--rule)}
+.pcard .pname{font-family:var(--display);font-weight:600;font-size:1.05rem;padding:6px 12px 0}
+.pcard .pline{font-size:.86rem;color:var(--muted);line-height:1.45;padding:0 12px}
+.pcard:hover{border-color:var(--accent)}
+.pcard:hover .pname{color:var(--accent)}
+.pcard:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:900px){.grid-projects{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}}
+@media (max-width:420px){.pcard .pline{font-size:.8rem}}
+@media (prefers-reduced-motion:no-preference){.pcard{transition:border-color .15s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <span class="mono" style="font-size:.85rem">SPENCER PERRY <span style="color:var(--muted)">/ REV 2026.10</span></span>
+    <nav aria-label="Sections">
+      <a href="#projects">Projects</a>
+      <a href="#experience">Experience</a>
+      <a href="#recognition">Recognition</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div>
+      <p class="label">Electrical engineering · Embedded systems</p>
+      <h1 style="margin-top:10px">Spencer Perry<span>.</span></h1>
+      <p class="lede">Thanks for visiting. I build hardware: circuit boards, firmware, robots, and drones. Here are some of my best projects.</p>
+      <div class="cta">
+        <a class="btn primary" href="#octopus">See the Octopus</a>
+        <a class="btn" href="#contact">Get in touch</a>
+      </div>
+    </div>
+    <div class="meta">
+      <div><span class="label">Based in</span><span class="v">Gainesville, Georgia</span></div>
+      <div><span class="label">Works in</span><span class="v mono">C++ · ESP32 · PlatformIO · KiCad</span></div>
+      <div><span class="label">Patent application</span><span class="v mono">US 2026/0276617 A1</span></div>
+      <div><span class="label">Interests</span><span class="v">Embedded systems · PCB design · Environmental sensing</span></div>
+    </div>
+  </div>
+
+  <div class="trace" aria-hidden="true"></div>
+
+  <section id="projects">
+    <div class="sec-head"><span class="sec-num">01</span><h2>Projects</h2></div>
+    <div class="grid-projects">
+      <a class="pcard" href="#octopus"><img src="images/octopus-field.jpg" alt="" loading="lazy" style="object-position:center 30%"><span class="pname">The Octopus</span><span class="pline">A $300 water quality monitor with a published patent application</span></a>
+      <a class="pcard" href="#arcs"><img src="images/arcs-wall.jpg" alt="" loading="lazy" style="object-position:center"><span class="pname">ARCS</span><span class="pline">Wall-climbing robot built by a 15-person team. I worked on movement and built its manual control</span></a>
+      <a class="pcard" href="#drone"><img src="images/drone-rev2-carbon.jpg" alt="" loading="lazy" style="object-position:center"><span class="pname">FPV claw drone</span><span class="pline">Custom drone that grabs payloads. 9th at Georgia TSA</span></a>
+      <a class="pcard" href="#occupancy"><img src="images/gtri-test-setting.jpg" alt="" loading="lazy" style="object-position:center"><span class="pname">Occupancy research</span><span class="pline">Four sensor types compared at Georgia Tech Research Institute</span></a>
+      <a class="pcard" href="#error-humanizer"><img src="images/error-humanizer.png" alt="" loading="lazy" style="object-position:left center"><span class="pname">Error Humanizer</span><span class="pline">Offline tool that explains error logs in plain English</span></a>
+      <a class="pcard" href="#gainesville-guide"><img src="images/newsletter-issue.jpg" alt="" loading="lazy" style="object-position:top center"><span class="pname">The Gainesville Guide</span><span class="pline">A local events newsletter written by a pipeline of AI agents</span></a>
+      <a class="pcard" href="#electric-vehicle"><img src="images/electric-vehicle.jpg" alt="" loading="lazy" style="object-position:center"><span class="pname">Electric Vehicle</span><span class="pline">Precision-stopping car. 5th at Science Olympiad regionals</span></a>
+      <a class="pcard" href="#display-builds"><img src="images/gift-photo-frame.jpg" alt="" loading="lazy" style="object-position:center"><span class="pname">ESP32 display builds</span><span class="pline">A photo frame and a day counter, built as gifts</span></a>
+    </div>
+
+    <article class="project" id="octopus">
+      <div class="story">
+        <div>
+          <h3>The Octopus</h3>
+          <p class="label tag">Modular water quality monitor · 2024–present</p>
+        </div>
+        <p>Hurricane Helene rerouted rivers across the Appalachian Mountains and washed sediment and chemical runoff into water supplies, including in the western North Carolina towns where I have family. To measure the damage, agencies had to send people out again and again to collect thousands of samples by hand, pulling time and money from the rest of the recovery.</p>
+        <p>That gap hits low-income communities hardest. Traditional monitoring equipment is expensive, so the people with the worst water often have the least information about how dangerous it is. I built the Octopus to close that gap. It's a monitor built on an ESP32 and a custom PCB that reads up to eight interchangeable sensors and turns raw numbers into plain-language results on a live web dashboard, so non-experts can use it. The whole build costs about $300 in parts.</p>
+        <h4>Design decisions</h4>
+        <p>The device computes 14+ derived insights on the board itself, so it works with no internet connection. If a sensor fails, the firmware drops it from the analysis instead of reporting bad numbers. Results are graded by severity so someone without a chemistry background can act on them, and a buzzer sounds when the water looks unsafe. I designed the PCB so a non-expert can set it up from the board alone: every sensor port is labeled, each analog sensor has its own calibration button, and the pin map and quick-start steps are printed on the silkscreen. It isn't tied to one power source. So far I've run it on a LiPo pack, AA batteries, a 9V battery, a wall adapter, and a solar-charged battery. The board also accepts 12V, so in places where power is scarce, a scavenged car battery could keep it running.</p>
+        <h4>Testing it</h4>
+        <p>For my first science fair, I ran trials comparing my grandmother's tap water with water from a nearby lake. The pH readings didn't change the way they should have, and because the dashboard shows raw sensor values, I could see the probe was faulty. The same trials showed the ORP probe needed better electrical isolation to measure directly in the lake.</p>
+        <p>At the next fair, I checked the Octopus against a commercial water testing pen, and the readings lined up closely. For the state fair, I sampled more locations, checked the pH and ORP probes against reference solutions of known value, and tested the flow, water level, and soil moisture sensors. Those early faults are why drift and fault detection are core features of the firmware rewrite I'm doing now in PlatformIO.</p>
+        <h4>Competing with it</h4>
+        <p>I entered the Conrad Challenge with Elizabeth Reed, who handled graphic design, which is a weak point of mine. We built a lean canvas business model, I built the prototype, and our written answers made us one of the top 5 finalists invited to the summit in Houston. There we pitched to judges from water industries and won the Donald James Citizenship Award and the Innovator Award.</p>
+        <p>Next, Elizabeth and I took it to the K-12 InVenture Prize. Feedback on our mock pitch video showed us what to focus on, and the revised version took 3rd place and the Agriculture &amp; Food award at state. At the Georgia Science &amp; Engineering Fair, the Octopus earned one of the top 10 grand awards among more than 300 senior projects. InVenture also qualified us for Invention Convention U.S. Nationals, where we competed against student inventors from across the country.</p>
+        <h4>Where it's going</h4>
+        <p>Water scientists in Peru and Denver reviewed the design and shaped the next version, including reporting turbidity in NTU. Compassion8Innovation, a Seattle nonprofit, is preparing a stable release for field sampling at local beaches.</p>
+      </div>
+      <div class="side">
+        <figure class="shot"><img src="images/octopus-field.jpg" alt="Spencer kneeling on a lakeshore next to the Octopus: the electronics sit in a clear storage bin, a probe is in the water, and a small solar panel powers it" loading="lazy" style="aspect-ratio:auto"><figcaption><span>Field test</span>Running on solar at the shoreline, with a probe in the water.</figcaption></figure>
+        <figure class="shot"><img src="images/octopus-pcb.jpg" alt="Bare green Octopus circuit board with eight labeled sensor headers along the top, calibration buttons, ESP32 headers in the middle, and a GPIO map and quick-start instructions printed on the silkscreen" loading="lazy" style="aspect-ratio:auto"><figcaption><span>Custom PCB</span>Eight sensor ports, per-sensor calibration buttons, and a 5V buck regulator. The pin map and quick-start steps are printed right on the board.</figcaption></figure>
+        <figure class="shot"><img src="images/octopus-dashboard.jpg" alt="Octopus web dashboard on a phone, showing sensor readings with Good, Caution, and Warning labels, and a table of derived metrics such as conductivity and a water quality index" loading="lazy" style="aspect-ratio:auto"><figcaption><span>Web dashboard</span>Served by the device itself over its own Wi-Fi. Readings get plain-language labels and derived metrics, and the raw values stay visible underneath.</figcaption></figure>
+        <table class="specs">
+          <tr><th>Parts cost</th><td>About $300</td></tr>
+          <tr><th>Controller</th><td>ESP32 on custom PCB</td></tr>
+          <tr><th>Sensors</th><td>8 interchangeable: pH, ORP, TDS, temperature, turbidity, flow, water level, soil moisture</td></tr>
+          <tr><th>On-device analysis</th><td>14+ derived insights</td></tr>
+          <tr><th>Power</th><td>Variable. Tested on LiPo, AA, 9V, wall adapter, and solar battery; accepts 12V</td></tr>
+          <tr><th>Logging</th><td>GPS-tagged, SD card</td></tr>
+          <tr><th>Interface</th><td>Wi-Fi web dashboard</td></tr>
+        </table>
+        <div class="patent">
+          <span class="label">Published patent application</span>
+          <span class="mono">US 2026/0276617 A1</span>
+          <span>Modular Water Quality System with WiFi and Variable Power Sources</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="project" id="arcs">
+      <div class="story">
+        <div>
+          <h3>ARCS</h3>
+          <p class="label tag">Autonomous Robot Climbing System · 63rd Governor's Honors Program team build</p>
+        </div>
+        <p>A robot that drives up a vertical wall, finds cracks with a camera, and fills them with spackle. About 15 of us built it at the Governor's Honors Program, split into teams for the chassis and electrical, thrust, computer vision, movement, and extrusion. It was my first real team engineering project.</p>
+        <h4>How it works</h4>
+        <p>Two electric ducted fans push the robot into the wall hard enough that friction holds it up. Together they make up to 3,155 g of thrust against a 1,677 g robot. A Raspberry Pi camera runs a YOLO segmentation model that finds each crack and sends its coordinates to the ESP32 on board. The robot drives there, and a rack-and-pinion syringe fills the crack.</p>
+        <h4>My part: movement</h4>
+        <p>I was on the movement team, which got the robot to drive on the wall in a controlled way, both by hand and on its own. We picked N20 gear motors light enough to carry and strong enough to climb while the fans pressed them into the wall, with encoders so the robot knew how far it had gone. An H-bridge driver gave us direction, speed, and fast stopping from a separate battery, and a PID loop on the encoder counts took the error out of each move. The last step was getting the robot to drive itself to the coordinates the vision model sent.</p>
+        <h4>What broke</h4>
+        <p>Our Bluetooth manual control lagged badly enough that the robot nearly hit a teammate. I built a replacement handheld controller from an ESP32 and joysticks that talks to the robot's ESP32 directly over ESP-NOW. Latency dropped, and the team switched to it as the default way to drive.</p>
+        <p>Autonomous driving was close but didn't make it. The encoders failed before the official test, and without them the robot couldn't tell how far it had moved, so it had no way to reach a target coordinate. We ran the official test on my manual controller instead.</p>
+      </div>
+      <div class="side">
+        <figure class="shot"><img src="images/arcs-wall.jpg" alt="ARCS robot on a concrete test wall, with two ducted fans, wheels at each corner, and a safety rope attached" loading="lazy" style="aspect-ratio:auto"><figcaption><span>ARCS V1</span>Held to the wall by two ducted fans. The rope is a safety line.</figcaption></figure>
+        <figure class="shot"><img src="images/arcs-controller.jpg" alt="Handheld controller made from an ESP32 and joysticks mounted on a breadboard" loading="lazy" style="aspect-ratio:auto"><figcaption><span>My controller</span>ESP32 and joysticks over ESP-NOW, replacing laggy Bluetooth.</figcaption></figure>
+        <table class="specs">
+          <tr><th>My team</th><td>Movement (5 people)</td></tr>
+          <tr><th>Thrust</th><td>2 EDFs, 3,155 g max</td></tr>
+          <tr><th>Robot mass</th><td>1,677 g</td></tr>
+          <tr><th>Drive</th><td>N20 motors with encoders, H-bridge driver, PID</td></tr>
+          <tr><th>Vision</th><td>Raspberry Pi camera, YOLOv8 segmentation</td></tr>
+          <tr><th>Manual control</th><td>ESP32 joystick controller, ESP-NOW</td></tr>
+        </table>
+      </div>
+    </article>
+
+    <article class="project" id="drone">
+      <div class="story">
+        <div>
+          <h3>FPV claw drone</h3>
+          <p class="label tag">Georgia TSA Drone Challenge · 9th at state, 2025</p>
+        </div>
+        <p>A 5-inch FPV drone with a front-mounted claw for picking up light payloads. The challenge required building the drone from scratch, documenting the build, and flying it through obstacles.</p>
+        <h4>Design</h4>
+        <p>The drone runs on a SpeedyBee F405 flight controller. The claw is 3D printed and opened and closed by a small servo, mounted at the front so it reaches the payload before the props do. The servo is wired through the flight controller and mapped to a switch on my radio, so one flick of a lever opens or closes the claw mid-flight. I put the FPV camera directly above the claw so I can see exactly what I'm grabbing from the pilot's view. The battery sits on top of the frame to keep it clear of the claw underneath.</p>
+        <h4>What broke</h4>
+        <p>My first frame was 3D printed for fast iteration. It vibrated so much that the flight controller was constantly overcorrecting. I tuned the correction down, and the drone nosedived and shattered the first time I pushed it forward. That showed me the frame material was the real problem, not the tuning. I rebuilt it on carbon fiber and the vibration went away.</p>
+      </div>
+      <div class="side">
+        <div class="slots">
+          <figure class="shot"><img src="images/drone-rev1-printed.jpg" alt="First drone build on a green 3D-printed X frame, with motors, flight controller stack, and camera wired up" loading="lazy"><figcaption><span>Rev 1</span>3D-printed frame. Vibrated, then shattered.</figcaption></figure>
+          <figure class="shot"><img src="images/drone-rev2-carbon.jpg" alt="Finished drone on a black carbon-fiber frame with propellers, battery, camera, and a white claw mounted at the front" loading="lazy"><figcaption><span>Rev 2</span>Carbon-fiber rebuild with the claw. Flies stable.</figcaption></figure>
+        </div>
+        <table class="specs">
+          <tr><th>Frame</th><td>5-inch, carbon fiber (rev 2)</td></tr>
+          <tr><th>Flight controller</th><td>SpeedyBee F405</td></tr>
+          <tr><th>Payload</th><td>3D-printed claw, servo-driven</td></tr>
+          <tr><th>Claw control</th><td>Switch on the radio</td></tr>
+          <tr><th>Next</th><td>Larger battery, cleaner wiring</td></tr>
+        </table>
+      </div>
+    </article>
+
+    <article class="project" id="occupancy">
+      <div class="story">
+        <div>
+          <h3>Occupancy detection research</h3>
+          <p class="label tag">STEM@GTRI · Georgia Tech Research Institute</p>
+        </div>
+        <p>How do you tell if a room has people in it, using only sensors? My question was whether combining several sensor types detects people better than any single one. I tested four approaches: environmental sensing (temperature, humidity, CO2, light), microphones, PIR motion sensors, and mmWave radar. Each picks up a different kind of evidence that someone is there.</p>
+        <h4>Method</h4>
+        <p>I reflashed M5Stack educational boards to stream environmental, audio, light, PIR, and mmWave data, and recorded all of them in the same room so the results could be compared directly.</p>
+        <h4>Findings</h4>
+        <p>Microphones and light sensors reacted to people, but also to things that weren't people, so they produced false positives. Running all of them side by side showed each sensor's strengths and weak spots, and in combination they largely covered for each other: where one sensor missed or misfired, another usually got it right. PIR detected presence more reliably than mmWave, but that says more about the hardware than the method: the mmWave module I had was unreliable. I presented the results at STEM@GTRI and recommended testing a better mmWave radar, since a good one can detect people who are sitting still, which PIR can't.</p>
+      </div>
+      <div class="side">
+        <div class="slots">
+          <figure class="shot"><img src="images/gtri-presenting.jpg" alt="Spencer presenting at a Georgia Tech Research Institute podium" loading="lazy"><figcaption><span>Presenting</span>Final results at STEM@GTRI.</figcaption></figure>
+          <figure class="shot"><img src="images/gtri-test-setting.jpg" alt="Slide titled Test setting: a room layout with a table, copier, and doors, and the PIR, microphone and light, mmWave radar, and CO2 sensors grouped along one wall" loading="lazy"><figcaption><span>Test room</span>All four sensor types side by side, with the copier and doors as sources of activity.</figcaption></figure>
+        </div>
+        <table class="specs">
+          <tr><th>Hardware</th><td>M5Stack modules</td></tr>
+          <tr><th>Compared</th><td>Environmental, microphone, PIR, mmWave</td></tr>
+          <tr><th>Best performer</th><td>PIR</td></tr>
+          <tr><th>Presented at</th><td>STEM@GTRI</td></tr>
+        </table>
+      </div>
+    </article>
+
+    <article class="project" id="error-humanizer">
+      <div class="story">
+        <div>
+          <h3>Error Humanizer</h3>
+          <p class="label tag">Offline debugging tool</p>
+        </div>
+        <p>Developers in research labs and government settings often can't use AI tools, so they debug by hand. The Error Humanizer helps with that. You pick a language, paste an error log, and it explains the error in plain English with the usual fixes.</p>
+        <h4>How it works</h4>
+        <p>Each language has its own set of regular expressions that pull the error type, message, and stack trace out of the log. The tool matches the error type against a JSON file of explanations and common fixes for that language. It runs entirely offline, which is what makes it usable where AI tools aren't allowed. It supports eight languages, including COBOL, which still runs a lot of government and banking systems. Adding a language means adding one pattern set and one JSON file.</p>
+      </div>
+      <div class="side">
+        <table class="specs">
+          <tr><th>Input</th><td>Language selection plus a raw error log</td></tr>
+          <tr><th>Parsing</th><td>Language-specific regular expressions</td></tr>
+          <tr><th>Knowledge base</th><td>One JSON file per language</td></tr>
+          <tr><th>Languages</th><td>8: Python, JavaScript, Java, Dart/Flutter, COBOL, SQL, R, Rust</td></tr>
+          <tr><th>Lookup time</th><td>About 2 ms, fully offline</td></tr>
+        </table>
+      </div>
+          <figure class="shot term"><div class="term-scroll"><img src="images/error-humanizer.png" alt="Terminal output from the Error Humanizer: it detects a Python TypeError with 100 percent confidence, lists causes and fixes, gives a plain-English explanation, and reports a lookup time of about 2 milliseconds" loading="lazy"></div><figcaption><span>Sample run</span>A Python TypeError, matched with full confidence and explained in plain English in about 2 ms.</figcaption></figure>
+    </article>
+
+    <article class="project" id="gainesville-guide">
+      <div class="story">
+        <div>
+          <h3>The Gainesville Guide</h3>
+          <p class="label tag">Automated local events newsletter · Part-time software developer role</p>
+        </div>
+        <p>A local entrepreneur introduced me to AI agent tools and brought me on as a part-time software developer to build a weekly newsletter covering things to do in Gainesville, Georgia. I designed it to run mostly on a pipeline of AI agents, and I act as the editor who signs off on every issue before it goes out.</p>
+        <h4>How it works</h4>
+        <p>Scrapers pull events from local sources, including RSS feeds, into a SQLite database. A drafting agent queries that database and writes each issue in a defined brand voice. Before anything is published, every event has to pass source-verification rules, and the draft waits for my approval. It ships two editions: a Wednesday list covering the full week and a Thursday weekend guide grouped by day.</p>
+        <h4>What broke</h4>
+        <p>Some sources, like city and chamber sites, looked promising and returned nothing usable, so the pipeline runs on the feeds that actually work. Recurring runs also couldn't be scheduled reliably against the local database, so each issue still needed me to start it by hand.</p>
+        <h4>Where it stands</h4>
+        <p>The first three issues, published in September 2026, were a proof of concept: the pipeline could find events, write an issue, and get it out the door. I've paused regular publishing while I improve the pipeline on my end, starting with scheduling and better sources, so it can run every week without me starting it.</p>
+      </div>
+      <div class="side">
+        <figure class="shot"><img src="images/newsletter-issue.jpg" alt="Published newsletter issue titled Your Weekend for 09/19/2026, with a summary of three Gainesville events and an In today's issue list" loading="lazy" style="aspect-ratio:auto"><figcaption><span>Published issue</span>The September 19 weekend guide, drafted by the pipeline and approved by me.</figcaption></figure>
+        <table class="specs">
+          <tr><th>Agents</th><td>Content drafting, scraper pipeline</td></tr>
+          <tr><th>Data</th><td>SQLite event database</td></tr>
+          <tr><th>Editions</th><td>Wednesday weekly, Thursday weekend guide</td></tr>
+          <tr><th>Human check</th><td>Editor approval on every issue</td></tr>
+          <tr><th>Platform</th><td>beehiiv</td></tr>
+          <tr><th>Read it</th><td><a href="https://gainesvilleguide.beehiiv.com/" target="_blank" rel="noopener">gainesvilleguide.beehiiv.com</a></td></tr>
+        </table>
+      </div>
+    </article>
+
+    <article class="project" id="electric-vehicle">
+      <div class="story">
+        <div>
+          <h3>Electric Vehicle</h3>
+          <p class="label tag">Science Olympiad build event · 5th place, regional</p>
+        </div>
+        <p>The event is a precision problem: drive a small car a set distance in a straight line and stop as close to the target as possible. Mine runs on an Arduino Nano, with an IMU for heading and a start button to launch the run.</p>
+        <h4>Design decisions</h4>
+        <p>From the wheel diameter I know how far the car travels per wheel rotation, so for any target distance I can work out how long the motors need to run. To keep the car straight, the Nano reads the IMU's heading and uses a PID loop to correct the steering as it drives.</p>
+        <h4>What broke</h4>
+        <p>At first the PID loop didn't correct hard enough, so the car still drifted off its line. Raising the proportional gain fixed most of it. Once tuned, the car held a straight line and finished about 6 inches from the target.</p>
+        <h4>Next year</h4>
+        <p>Stopping on time assumes the motors always spin at the same speed, but they slow down as the battery drains. I'm adding wheel encoders so the car counts actual wheel rotations and stops on distance, not time.</p>
+      </div>
+      <div class="side">
+        <figure class="shot"><img src="images/electric-vehicle.jpg" alt="Small four-wheeled car with blue 3D-printed wheels carrying a breadboard with an Arduino Nano, motor driver, IMU board, LEDs, and a red start button" loading="lazy" style="aspect-ratio:auto"><figcaption><span>Competition car</span>Arduino Nano, IMU, and motor driver on a breadboard chassis.</figcaption></figure>
+        <table class="specs">
+          <tr><th>Controller</th><td>Arduino Nano</td></tr>
+          <tr><th>Steering</th><td>IMU heading with PID correction</td></tr>
+          <tr><th>Distance</th><td>Calculated from wheel diameter</td></tr>
+          <tr><th>Accuracy</th><td>~6 in from target</td></tr>
+          <tr><th>Result</th><td>5th place, regional</td></tr>
+          <tr><th>Next</th><td>Wheel encoders for closed-loop distance</td></tr>
+        </table>
+      </div>
+    </article>
+
+    <article class="project" id="display-builds">
+      <div class="story">
+        <div>
+          <h3>ESP32 display builds</h3>
+          <p class="label tag">Two small builds, made as gifts</p>
+        </div>
+        <p>Two small ESP32 builds, each in an enclosure I designed and 3D printed.</p>
+        <h4>Photo frame</h4>
+        <p>Cycles through JPEGs stored on an SD card and shows them on a 1.3-inch ST7789 screen. Decoding the images meant working with a JPEG library that hands you each picture in small blocks through callbacks, so I had to manage where each block gets drawn and how memory is handed back and forth. That is what finally made pointers click for me.</p>
+        <p>The display and the SD card share the same SPI bus, and SD cards are bad citizens on a shared bus: they don't always let go of it cleanly when another device needs it. The card kept failing, so I had the firmware reset it in software each time, which got it reading reliably.</p>
+        <h4>Day counter</h4>
+        <p>A battery-powered counter that keeps time with a DS3231 real-time clock and shows the day count on a 16×2 character LCD. The count has to roll over at local midnight, so I had to handle time zones properly instead of trusting the clock's raw time.</p>
+      </div>
+      <div class="side">
+        <div class="slots">
+          <figure class="shot"><img src="images/gift-photo-frame.jpg" alt="Open 3D-printed enclosure with an ESP32 on a breadboard and a ribbon cable running to a small ST7789 display mounted in the lid" loading="lazy"><figcaption><span>Photo frame</span>ST7789 display going into the printed lid.</figcaption></figure>
+          <figure class="shot"><img src="images/gift-day-counter.jpg" alt="Back of the day counter: ESP32 on a breadboard, DS3231 clock module, 16 by 2 LCD, and a 4 AAA battery pack mounted on a 3D-printed panel" loading="lazy"><figcaption><span>Day counter</span>ESP32, DS3231 clock, LCD, and AAA pack.</figcaption></figure>
+        </div>
+        <table class="specs">
+          <tr><th>Controller</th><td>ESP32 (both builds)</td></tr>
+          <tr><th>Displays</th><td>ST7789 240×240 SPI; 16×2 character LCD</td></tr>
+          <tr><th>Timekeeping</th><td>DS3231 RTC</td></tr>
+          <tr><th>Enclosures</th><td>Custom 3D-printed</td></tr>
+        </table>
+      </div>
+    </article>
+
+    <div class="grid2 single" style="margin-top:12px">
+      <div class="item">
+        <h3>Earlier builds</h3>
+        <p>Started in 5th grade with a drone built out of rulers. Then came an Arduino metal-detector robot for the beach, and ideas for drones that spray invasive Joro spiders. For Science Olympiad I've also built for Wind Power, Robot Tour, and Hovercraft. For a class final, I added a speaker to an older drone so it could broadcast recorded messages from the air.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Experience &amp; leadership</h2></div>
+    <div class="grid2">
+      <div class="item">
+        <p class="label">Paid research position</p>
+        <h3>STEM@GTRI, Georgia Tech Research Institute</h3>
+        <p>Compared four kinds of occupancy sensors over a five-week summer program and presented the results at the end of the program. <a href="#occupancy">See the project</a></p>
+      </div>
+      <div class="item">
+        <p class="label">Program</p>
+        <h3>Governor's Honors Program</h3>
+        <p>63rd Governor's Honors Program, Electrical and Computational Engineering. Team build of the ARCS climbing robot. <a href="#arcs">See the project</a></p>
+      </div>
+      <div class="item">
+        <p class="label">Leadership</p>
+        <h3>Technology Student Association</h3>
+        <p>Chapter Reporter and Member of the Year. Helped build our school's first electric race car from a kit and worked pit crew in all three races, most recently placing 4th in the lithium battery race at the State Leadership Conference. I wrote the team's race portfolio, a 30-hour job, so we could compete. Also placed 3rd in Electrical Applications, 9th in the Drone challenge, and 7th at state in Software Development with a program that detects a speaker's emotion from audio so deaf viewers can follow media more easily.</p>
+      </div>
+      <div class="item">
+        <p class="label">Leadership</p>
+        <h3>Science Olympiad</h3>
+        <p>Founding member and the chapter's first build leader. Built competition devices for Electric Vehicle, Robot Tour, Hovercraft, and Wind Power, and coordinated underclassman builders to keep them on schedule and on track at events held on college campuses. <a href="#electric-vehicle">See the Electric Vehicle</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="recognition">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Recognition</h2></div>
+    <ul class="awards">
+      <li>Conrad Challenge (international): Top 5 Finalist, Donald James Citizenship Award and Innovator Award</li>
+      <li>Georgia Science &amp; Engineering Fair: Grand Award, top 10 of 300+ senior projects, and First Honors</li>
+      <li>Stockholm Junior Water Prize, Regional Award</li>
+      <li>Georgia TSA: 3rd in Electrical Applications (2026), 7th in Software Development (2026), 9th in Drone (2025); Member of the Year</li>
+      <li>TSA State Leadership Conference: 4th in the lithium battery electric car race (pit crew)</li>
+      <li>Science Olympiad: 4th at state in Wind Power; 4th at regionals in Robot Tour; 5th at regionals in Electric Vehicle</li>
+      <li>K-12 InVenture Prize: 3rd Place and Agriculture &amp; Food Award</li>
+      <li>Invention Convention U.S. Nationals qualifier</li>
+      <li>Water Champion Award, Upper Oconee Watershed Network</li>
+      <li>NHHS STEM Student of the Year, 2025</li>
+      <li>Georgia Student Technology Competition: State Finalist, 2023–2026</li>
+      <li>Governor's Honors Program (63rd), Electrical and Computational Engineering</li>
+      <li>Featured in the Gainesville Times: <a href="https://www.gainesvilletimes.com/life/people/two-north-hall-teens-built-a-water-quality-sensor-for-300-its-already-been-tested-in-peru/" target="_blank" rel="noopener">"Two North Hall teens built a water quality sensor for $300"</a></li>
+    </ul>
+  </section>
+
+  <section id="contact">
+    <div class="sec-head"><span class="sec-num">04</span><h2>Contact</h2></div>
+    <div class="contact">
+      <p>I'm always glad to talk about water monitoring, embedded systems, or a project you're working on.</p>
+      <div class="row">
+        <div><p class="label">Email</p><p class="mono"><a href="mailto:spencer.e.perry@outlook.com">spencer.e.perry@outlook.com</a></p></div>
+        <div><p class="label">LinkedIn</p><p><a href="https://www.linkedin.com/in/spencer-perry-015b82407/" target="_blank" rel="noopener">linkedin.com/in/spencer-perry</a></p></div>
+        <div><p class="label">GitHub</p><p><a href="https://github.com/spencereperry" target="_blank" rel="noopener">github.com/spencereperry</a></p></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="label">Spencer Perry · Gainesville, GA</span>
+    <span class="label">Last updated October 2026</span>
+  </footer>
+</div>
+</body>
+</html>
